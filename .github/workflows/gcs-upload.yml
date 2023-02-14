@@ -1,0 +1,31 @@
+name: gcs-upload
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["content/**"]
+
+env:
+  GCP_CREDENTIALS: ${{ secrets.GCS_SA }}
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - uses: actions/checkout@v3
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ env.GCP_CREDENTIALS }}'
+
+    - id: 'upload-folder'
+      uses: 'google-github-actions/upload-cloud-storage@v1'
+      with:
+        path: './content'
+        destination: 'content.alexnodeland.com'
+        parent: false
